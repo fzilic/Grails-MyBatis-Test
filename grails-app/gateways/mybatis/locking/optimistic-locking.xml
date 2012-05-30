@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mybatis.locking.OptimisticLocking">
+  <!--
+  <select id="select" parameterType="int" resultType="Foo">
+    select * from @mapper.tableName@ where id = #{id:NUMERIC}
+  </select>
+  -->
+
+  <sql id="optimisticBeanQuery">
+    SELECT OPT_ID, OPT_VERSION, OPT_VALUE
+    FROM OPTIMISTIC_TABLE
+  </sql>
+
+  <select id="findAllOptimisticBeanList" resultMap="optimisticBeanMap">
+    <include refid="optimisticBeanQuery"/>
+  </select>
+
+  <select id="loadOptimisticBeanById" resultMap="optimisticBeanMap" parameterType="long">
+    <include refid="optimisticBeanQuery"/>
+    WHERE OPT_ID = #{value}
+  </select>
+
+  <resultMap id="optimisticBeanMap" type="mybatis.locking.OptimisticBean">
+    <id property="id" column="OPT_ID" javaType="Long"/>
+    <result property="version" column="OPT_VERSION"/>
+    <result property="textValue" column="OPT_VALUE"/>
+  </resultMap>
+
+  <select id="countOptimisticBeans" resultType="long">
+    SELECT COUNT(OPT_ID) FROM OPTIMISTIC_TABLE
+  </select>
+
+  <insert id="insertOptimisticBean" parameterType="mybatis.locking.OptimisticBean">
+    <selectKey keyProperty="id" resultType="long" order="BEFORE">
+      SELECT COALESCE(MAX(OPT_ID), 0) + 1 FROM OPTIMISTIC_TABLE
+    </selectKey>
+    INSERT INTO OPTIMISTIC_TABLE (OPT_ID, OPT_VERSION, OPT_VALUE)
+    VALUES (#{id}, #{version}, #{textValue})
+  </insert>
+
+  <update id="updateOptimisticBean" parameterType="mybatis.locking.OptimisticBean">
+    UPDATE OPTIMISTIC_TABLE
+    SET OPT_VERSION = #{version}, OPT_VALUE = #{textValue}
+    WHERE OPT_ID = #{id}
+  </update>
+
+  <select id="loadCurrentVersionOfOptimisticBeanById" parameterType="long" resultType="long">
+    SELECT OPT_VERSION
+    FROM OPTIMISTIC_TABLE
+    WHERE OPT_ID = #{value}
+  </select>
+
+  <delete id="deleteOptimisticBean" parameterType="mybatis.locking.OptimisticBean">
+    DELETE FROM OPTIMISTIC_TABLE WHERE OPT_ID = #{id}
+  </delete>
+</mapper>

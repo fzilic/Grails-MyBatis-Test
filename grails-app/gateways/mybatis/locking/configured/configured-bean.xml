@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mybatis.locking.configured.ConfiguredBean">
+  <!--
+  <select id="select" parameterType="int" resultType="Foo">
+    select * from @mapper.tableName@ where id = #{id:NUMERIC}
+  </select>
+  -->
+
+  <sql id="beanQuery">
+    SELECT OPT_ID, OPT_VERSION, OPT_VALUE
+    FROM OPTIMISTIC_TABLE
+  </sql>
+
+  <select id="findAllBeanList" resultMap="beanMap">
+    <include refid="beanQuery"/>
+  </select>
+
+  <select id="loadBeanById" resultMap="beanMap" parameterType="long">
+    <include refid="beanQuery"/>
+    WHERE OPT_ID = #{value}
+  </select>
+
+  <resultMap id="beanMap" type="mybatis.locking.configured.ConfiguredBean">
+    <id property="identity" column="OPT_ID" javaType="Long"/>
+    <result property="ver" column="OPT_VERSION"/>
+    <result property="textValue" column="OPT_VALUE"/>
+  </resultMap>
+
+  <select id="countBeans" resultType="long">
+    SELECT COUNT(OPT_ID) FROM OPTIMISTIC_TABLE
+  </select>
+
+  <insert id="insertBean" parameterType="mybatis.locking.configured.ConfiguredBean">
+    <selectKey keyProperty="identity" resultType="long" order="BEFORE">
+      SELECT COALESCE(MAX(OPT_ID), 0) + 1 FROM OPTIMISTIC_TABLE
+    </selectKey>
+    INSERT INTO OPTIMISTIC_TABLE (OPT_ID, OPT_VERSION, OPT_VALUE)
+    VALUES (#{identity}, #{ver}, #{textValue})
+  </insert>
+
+  <update id="updateBean" parameterType="mybatis.locking.configured.ConfiguredBean">
+    UPDATE OPTIMISTIC_TABLE
+    SET OPT_VERSION = #{ver}, OPT_VALUE = #{textValue}
+    WHERE OPT_ID = #{identity}
+  </update>
+
+  <select id="queryForVersion" parameterType="long" resultType="long">
+    SELECT OPT_VERSION
+    FROM OPTIMISTIC_TABLE
+    WHERE OPT_ID = #{value}
+  </select>
+
+  <delete id="deleteBean" parameterType="mybatis.locking.configured.ConfiguredBean">
+    DELETE FROM OPTIMISTIC_TABLE WHERE OPT_ID = #{identity}
+  </delete>
+</mapper>
