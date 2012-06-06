@@ -6,3 +6,6 @@ plugin.xml
 target-eclipse
 web-app
 stacktrace.log
+.svn
+.idea
+*.iml

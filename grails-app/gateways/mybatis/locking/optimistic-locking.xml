@@ -3,11 +3,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="mybatis.locking.OptimisticLocking">
-  <!--
-  <select id="select" parameterType="int" resultType="Foo">
-    select * from @mapper.tableName@ where id = #{id:NUMERIC}
-  </select>
-  -->
 
   <sql id="optimisticBeanQuery">
     SELECT OPT_ID, OPT_VERSION, OPT_VALUE

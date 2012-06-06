@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mybatis.multivendor.Multivendor">
+
+  <sql id="testConcat">
+    <choose>
+      <when test="_databaseId == 'mssql'">
+        COL1 + ' ' + COL2
+      </when>
+      <otherwise>
+        CONCAT(COL1, ' ', COL2)
+      </otherwise>
+    </choose>
+  </sql>
+
+  <select id="testSelectList" resultType="string">
+    SELECT <include refid="testConcat"/> CON
+    FROM TEST_TABLE
+  </select>
+</mapper>
