@@ -5,7 +5,7 @@ grails.project.test.reports.dir = "target/test-reports"
 grails.project.target.level = 1.6
 grails.project.source.level = 1.6
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
-grails.plugin.location.'mybatis'="../grails-mybatis"
+//grails.plugin.location.'mybatis'="../grails-mybatis"
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -43,6 +43,7 @@ grails.project.dependency.resolution = {
         runtime ":hibernate:$grailsVersion"
         runtime ":jquery:1.7.1"
         runtime ":resources:1.1.6"
+        compile ":mybatis:0.0.1"
 
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
